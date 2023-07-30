@@ -1,10 +1,7 @@
-use lazy_static::lazy_static;
 use redis::Client;
-use std::sync::Mutex;
+use crate::errors::Error;
 
-lazy_static! {
-    pub static ref REDIS_CON: Mutex<Client> = {
-        let client = Client::open("").unwrap();
-        Mutex::new(client)
-    };
+pub async fn redis_client(uri: &str) -> Result<Client, Error>{
+    let client = Client::open(uri).unwrap();
+    Ok(client)
 }
