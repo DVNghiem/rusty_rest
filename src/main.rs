@@ -7,7 +7,6 @@ mod controllers;
 mod helpers;
 mod middlewares;
 mod models;
-mod orm;
 mod routes;
 mod errors;
 
