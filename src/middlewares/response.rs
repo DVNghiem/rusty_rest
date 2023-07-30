@@ -69,9 +69,9 @@ where
                         .body(
                             serde_json::to_string(&json!(
                             {
-                                "data": _body,
+                                "data": "",
                                 "msg": "",
-                                "error": ""
+                                "error": _body
                             }))
                             .unwrap(),
                         )
