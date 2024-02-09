@@ -1,5 +1,3 @@
-use std::future::{ready, Ready};
-
 use actix_web::{
     body::{BoxBody, EitherBody},
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
@@ -9,7 +7,7 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_slice, json, Value};
-
+use std::future::{ready, Ready};
 #[derive(Deserialize, Serialize)]
 pub struct Response;
 
@@ -52,65 +50,51 @@ where
         Box::pin(async move {
             let service: ServiceResponse<B> = fut.await?;
             let (_req, _res) = service.into_parts();
-            let (part, body) = _res.into_parts();
-            let bytes_body = match actix_web::body::to_bytes(body).await {
-                Ok(data) => data,
-                _ => web::Bytes::from(""),
-            };
-            let (_body, status): (Value, u16) = match from_slice(&bytes_body) {
-                Ok(d) => (d, 200),
-                Err(e) => (json!(e.to_string()), 500),
-            };
 
-            if status == 500 {
-                return Ok(ServiceResponse::new(
-                    _req,
-                    HttpResponse::InternalServerError()
-                        .body(
+            let new_res = ServiceResponse::new(
+                _req.clone(),
+                match _res.status() {
+                    StatusCode::OK => {
+                        let (_part, body) = _res.into_parts();
+                        let bytes_body = match actix_web::body::to_bytes(body).await {
+                            Ok(data) => data,
+                            _ => web::Bytes::from(""),
+                        };
+
+                        let (_body, status): (Value, u16) = match from_slice(&bytes_body) {
+                            Ok(d) => (d, 200),
+                            Err(e) => (json!(e.to_string()), 500),
+                        };
+
+                        log::info!("{:?}", bytes_body);
+
+                        if status == 500 {
+                            return Ok(ServiceResponse::new(
+                                _req,
+                                HttpResponse::InternalServerError()
+                                    .body(
+                                        serde_json::to_string(&json!(
+                                        {
+                                            "data": "",
+                                            "error_msg": _body,
+                                            "error_code": "INTERNAL_SERVER_ERR"
+                                        }))
+                                        .unwrap(),
+                                    )
+                                    .map_into_left_body(),
+                            ));
+                        }
+                        HttpResponse::Ok().body(
                             serde_json::to_string(&json!(
                             {
-                                "data": "",
-                                "msg": "",
-                                "error": _body
+                                "data": _body,
+                                "error_msg": "",
+                                "error_code": ""
                             }))
                             .unwrap(),
                         )
-                        .map_into_left_body()
-                ));
-            }
-
-            let status_code = part.status();
-
-            let new_res = ServiceResponse::new(
-                _req,
-                match status_code {
-                    StatusCode::OK => HttpResponse::Ok().body(
-                        serde_json::to_string(&json!(
-                        {
-                            "data": _body,
-                            "msg": "",
-                            "error": ""
-                        }))
-                        .unwrap(),
-                    ),
-                    StatusCode::BAD_REQUEST => HttpResponse::BadRequest().body(
-                        serde_json::to_string(&json!(
-                        {
-                            "data": "",
-                            "msg": _body,
-                            "error": "Bad request"
-                        }))
-                        .unwrap(),
-                    ),
-                    _ => HttpResponse::InternalServerError().body(
-                        serde_json::to_string(&json!(
-                        {
-                            "data": "",
-                            "msg": _body,
-                            "error": "Internal server"
-                        }))
-                        .unwrap(),
-                    ),
+                    }
+                    _ => _res.map_into_boxed_body(),
                 }
                 .map_into_left_body(),
             );
