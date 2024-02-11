@@ -1,13 +1,16 @@
 use actix_web::{
     body::{BoxBody, EitherBody},
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    http::StatusCode,
+    http::{header, StatusCode},
     web, Error, HttpResponse,
 };
 use futures_util::future::LocalBoxFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_slice, json, Value};
-use std::future::{ready, Ready};
+use std::{
+    future::{ready, Ready},
+    str::from_utf8,
+};
 #[derive(Deserialize, Serialize)]
 pub struct Response;
 
@@ -55,44 +58,57 @@ where
                 _req.clone(),
                 match _res.status() {
                     StatusCode::OK => {
-                        let (_part, body) = _res.into_parts();
-                        let bytes_body = match actix_web::body::to_bytes(body).await {
-                            Ok(data) => data,
-                            _ => web::Bytes::from(""),
-                        };
-
-                        let (_body, status): (Value, u16) = match from_slice(&bytes_body) {
-                            Ok(d) => (d, 200),
-                            Err(e) => (json!(e.to_string()), 500),
-                        };
-
-                        log::info!("{:?}", bytes_body);
-
-                        if status == 500 {
-                            return Ok(ServiceResponse::new(
-                                _req,
-                                HttpResponse::InternalServerError()
-                                    .body(
-                                        serde_json::to_string(&json!(
-                                        {
-                                            "data": "",
-                                            "error_msg": _body,
-                                            "error_code": "INTERNAL_SERVER_ERR"
-                                        }))
-                                        .unwrap(),
-                                    )
-                                    .map_into_left_body(),
-                            ));
+                        let header_map = _res.headers();
+                        match header_map.get(header::CONTENT_TYPE) {
+                            Some(t) => {
+                                let header_value_str = t.to_str().unwrap().to_lowercase();
+                                if header_value_str == String::from("application/json") {
+                                    let body = _res.into_body();
+                                    let bytes_body = match actix_web::body::to_bytes(body).await {
+                                        Ok(data) => data,
+                                        _ => web::Bytes::from(""),
+                                    };
+                                    let (_body, status): (Value, u16) =
+                                        match from_slice(&bytes_body) {
+                                            Ok(d) => (d, 200),
+                                            Err(e) => (json!(e.to_string()), 500),
+                                        };
+                                    if status == 500 {
+                                        return Ok(ServiceResponse::new(
+                                            _req,
+                                            HttpResponse::InternalServerError()
+                                                .json(json!({
+                                                    "data": "",
+                                                    "error_msg": _body,
+                                                    "error_code": "INTERNAL_SERVER_ERR"
+                                                }))
+                                                .map_into_left_body(),
+                                        ));
+                                    }
+                                    HttpResponse::Ok().json(json!(
+                                    {
+                                        "data": _body,
+                                        "error_msg": "",
+                                        "error_code": ""
+                                    }))
+                                } else if header_value_str == String::from("text/plain") {
+                                    let body = _res.into_body();
+                                    let bytes_body = match actix_web::body::to_bytes(body).await {
+                                        Ok(data) => data,
+                                        _ => web::Bytes::from(""),
+                                    };
+                                    HttpResponse::Ok().json(json!(
+                                    {
+                                        "data": from_utf8(&bytes_body).unwrap(),
+                                        "error_msg": "",
+                                        "error_code": ""
+                                    }))
+                                } else {
+                                    _res.map_into_boxed_body()
+                                }
+                            }
+                            _ => _res.map_into_boxed_body(),
                         }
-                        HttpResponse::Ok().body(
-                            serde_json::to_string(&json!(
-                            {
-                                "data": _body,
-                                "error_msg": "",
-                                "error_code": ""
-                            }))
-                            .unwrap(),
-                        )
                     }
                     _ => _res.map_into_boxed_body(),
                 }

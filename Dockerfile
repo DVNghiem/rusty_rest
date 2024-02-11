@@ -1,10 +1,9 @@
-FROM rust:1.76 as builder
+FROM rustlang/rust:nightly as builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN rustup default nightly && rustup update
 RUN cargo build --release
 
 FROM alpine:latest

@@ -7,6 +7,7 @@ This project template provides a basic configuration for building a Rust web app
     - Actix Web: Efficient and scalable Rust web framework.
     - SeaORM: Powerful and easy-to-use Rust ORM.
     - Celery: Distributed task system for Python (can be used with Rust via the rust-celery library).
+    - Validator: Validate input
 ### Installation:
 
 1. Clone this project:
@@ -26,6 +27,11 @@ cargo watch -x "run web"
 4. Run the worker:
 ```bash
 cargo watch -x "run worker"
+```
+5. SeaORM command
+```bash
+sea-orm-cli migrate up
+sea-orm-cli generate entity -o entity/src
 ```
 
 ### Project Structure:

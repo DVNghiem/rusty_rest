@@ -25,11 +25,10 @@ dotenv = "0.15.0"
 log = "0.4.20"
 env_logger = "0.11.1"
 futures-util = "0.3.30"
-redis = { version = "0.23.1", features = [ "cluster", "tokio-comp"] }
+redis = { version = "0.24.0", features = ["tokio-comp"] }
 thiserror = "1.0.56"
 sea-orm = { version = "^0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
 validator = { version = "0.16", features = ["derive"] }
 celery = "0.5.5"
 tokio = "1.36.0"
 structopt = "0.3.26"
-lazy_static = "1.4.0"

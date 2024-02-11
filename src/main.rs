@@ -15,12 +15,12 @@ use structopt::StructOpt;
 use crate::config::conf;
 use crate::routes::routing;
 use actix_web::{
-    middleware::{DefaultHeaders, Logger, NormalizePath},
+    middleware::{Logger, NormalizePath},
     App, HttpServer, web,
 };
 use env_logger::Env;
 use worker::create_worker;
-use crate::tasks::health_check::add_post;
+// use crate::tasks::health_check::add_post;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -55,7 +55,6 @@ async fn main() -> std::io::Result<()> {
                     .wrap(NormalizePath::trim())
                     .wrap(middlewares::response::Response)
                     .wrap(actix_web::middleware::Compress::default())
-                    .wrap(DefaultHeaders::new().add(("Content-type", "application/json")))
                     .wrap(Logger::new("%a %r %s [%b bytes] %T seconds"))
             })
             .workers(1)
