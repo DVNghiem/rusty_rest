@@ -13,7 +13,6 @@ pub async fn connect_redis(uri: &str) -> Result<Client, Error> {
 }
 
 pub async fn get_database() -> &'static DatabaseConnection {
-
     DBCLIENT
         .get_or_init(|| async {
             let uri = conf::get_database_url();

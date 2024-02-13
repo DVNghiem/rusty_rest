@@ -33,6 +33,11 @@ cargo watch -x "run worker"
 sea-orm-cli migrate up
 sea-orm-cli generate entity -o entity/src
 ```
+6. Format code 
+```bash
+rustup component add rustfmt
+cargo fmt
+```
 
 ### Project Structure:
 

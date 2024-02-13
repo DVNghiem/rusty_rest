@@ -8,7 +8,7 @@ pub enum Error {
     RedisError(#[from] RedisErr),
 
     #[error("{0}")]
-    DbError(String)
+    DbError(String),
 }
 
 #[derive(Error, Debug)]

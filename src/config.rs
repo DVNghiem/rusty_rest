@@ -23,5 +23,4 @@ pub mod conf {
     pub fn get_redis_url() -> String {
         env::var("REDIS_URL").expect("REDIS_URL must be set in .env")
     }
-
 }

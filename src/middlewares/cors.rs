@@ -1,8 +1,10 @@
 use std::future::{ready, Ready};
 
 use actix_web::{
+    body::{BoxBody, EitherBody},
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    http::{header, self}, Error, HttpResponse, body::{EitherBody, BoxBody},
+    http::{self, header},
+    Error, HttpResponse,
 };
 use futures_util::future::LocalBoxFuture;
 use serde::{Deserialize, Serialize};
@@ -59,9 +61,7 @@ where
                 header::ACCESS_CONTROL_ALLOW_ORIGIN,
                 header::HeaderValue::from_str("*").unwrap(),
             );
-            return Box::pin(async {
-                Ok(ServiceResponse::new(_req, resp.map_into_left_body()))
-            });
+            return Box::pin(async { Ok(ServiceResponse::new(_req, resp.map_into_left_body())) });
         }
         let fut = self.service.call(req);
         Box::pin(async move {

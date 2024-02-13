@@ -1,24 +1,25 @@
 #![allow(dead_code)]
 // define module
-mod errors;
 mod config;
+mod connect;
 mod controllers;
+mod errors;
 mod helpers;
 mod middlewares;
 mod routes;
-mod connect;
 mod schema;
-mod worker;
 mod tasks;
+mod worker;
 
-use structopt::StructOpt;
 use crate::config::conf;
 use crate::routes::routing;
 use actix_web::{
     middleware::{Logger, NormalizePath},
-    App, HttpServer, web,
+    web, App, HttpServer,
 };
 use env_logger::Env;
+use redis::Commands;
+use structopt::StructOpt;
 use worker::create_worker;
 // use crate::tasks::health_check::add_post;
 
@@ -30,7 +31,7 @@ use worker::create_worker;
 )]
 enum RunOpt {
     Worker,
-    Web
+    Web,
 }
 
 #[actix_web::main]
@@ -44,7 +45,9 @@ async fn main() -> std::io::Result<()> {
     match opt {
         RunOpt::Web => {
             // worker.send_task(add_post::new()).await.unwrap();
-            let redis_db = connect::connect_redis(&conf::get_redis_url()).await.unwrap();
+            let redis_db = connect::connect_redis(&conf::get_redis_url())
+                .await
+                .unwrap();
             let db = connect::get_database().await;
             HttpServer::new(move || {
                 App::new()
@@ -61,7 +64,7 @@ async fn main() -> std::io::Result<()> {
             .bind((conf::get_host(), conf::get_port()))?
             .run()
             .await
-        },
+        }
         RunOpt::Worker => {
             worker.display_pretty().await;
             worker.consume_from(&["test_queue"]).await.unwrap();
@@ -69,7 +72,4 @@ async fn main() -> std::io::Result<()> {
             Ok(())
         }
     }
-    
 }
-
-

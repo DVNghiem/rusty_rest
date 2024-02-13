@@ -10,7 +10,12 @@ edition = "2021"
 opt-level = 0
 
 [profile.release]
-opt-level = 1
+opt-level = 3
+
+# [lib]
+# name = "rust_lib"          # The name of the target.
+# path = "src/lib/mod.rs"    # The source file of the target.
+
 
 [dependencies]
 # internal dependencies
