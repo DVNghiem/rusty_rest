@@ -1,6 +1,6 @@
 use crate::errors::Error;
 use entity::prelude::Post;
-use sea_orm::{DatabaseConnection, EntityOrSelect, EntityTrait, QueryFilter, QuerySelect};
+use sea_orm::{DatabaseConnection, EntityTrait};
 use serde_json::Value;
 
 pub struct HealthCheckHelper;

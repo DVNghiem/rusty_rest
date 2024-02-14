@@ -53,6 +53,14 @@ where
         Box::pin(async move {
             let service: ServiceResponse<B> = fut.await?;
             let (_req, _res) = service.into_parts();
+            
+            let uri = _req.uri();
+            if uri.path() == "/api-docs/openapi.json" {
+                return Ok(ServiceResponse::new(
+                    _req.clone(),
+                    _res.map_into_boxed_body()
+                ).map_into_left_body());
+            };
 
             let new_res = ServiceResponse::new(
                 _req.clone(),

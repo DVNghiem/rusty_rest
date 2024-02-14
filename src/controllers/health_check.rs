@@ -8,10 +8,20 @@ use validator::Validate;
 
 const HELPER: HealthCheckHelper = HealthCheckHelper;
 
+#[utoipa::path(
+    get,
+    path = "/health_check",
+    params(HealthCheckSchema),
+    responses(
+        (status = 200, description = "List current todo items")
+    ),
+    tag = "BasicAPI",
+)]
+// 908684
 pub async fn health_check(
     data: web::Query<HealthCheckSchema>,
     db: web::Data<DatabaseConnection>,
-) -> Result<HttpResponse, HttpError> {
+) -> impl actix_web::Responder { 
     match data.validate() {
         Ok(_) => {
             let result = HELPER.find_all(db.as_ref()).await;

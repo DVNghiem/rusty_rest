@@ -37,3 +37,5 @@ validator = { version = "0.16", features = ["derive"] }
 celery = "0.5.5"
 tokio = "1.36.0"
 structopt = "0.3.26"
+utoipa = { version = "4.2.0", features = ["actix_extras"] }
+utoipa-swagger-ui = { version = "6.0.0", features = ["actix-web", "debug-embed"] }

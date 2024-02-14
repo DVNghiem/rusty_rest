@@ -11,14 +11,14 @@ mod schema;
 mod tasks;
 mod worker;
 
+use std::net::Ipv4Addr;
 use crate::config::conf;
 use crate::routes::routing;
 use actix_web::{
-    middleware::{Logger, NormalizePath},
+    middleware::Logger,
     web, App, HttpServer,
 };
 use env_logger::Env;
-use redis::Commands;
 use structopt::StructOpt;
 use worker::create_worker;
 // use crate::tasks::health_check::add_post;
@@ -30,10 +30,14 @@ use worker::create_worker;
     setting = structopt::clap::AppSettings::ColoredHelp,
 )]
 enum RunOpt {
-    Worker,
+    Worker {
+        #[structopt(short = "-q", default_value = "test_queue", about="Queue name to consume from split by comma. e.g: test_queue, test_queue2, test_queue3")]
+        queues: String,
+    
+    },
     Web {
-        #[structopt(short = "w", default_value="1")]
-        num_worker: usize
+        #[structopt(short = "w", default_value = "1", about="Number of worker to run.")]
+        num_worker: usize,
     },
 }
 
@@ -57,19 +61,20 @@ async fn main() -> std::io::Result<()> {
                     .app_data(web::Data::new(redis_db.clone()))
                     .app_data(web::Data::new(worker.clone()))
                     .configure(routing)
-                    .wrap(NormalizePath::trim())
+                    // .wrap(NormalizePath::trim())
                     .wrap(middlewares::response::Response)
                     .wrap(actix_web::middleware::Compress::default())
                     .wrap(Logger::new("%a %r %s [%b bytes] %T seconds"))
             })
             .workers(num_worker)
-            .bind((conf::get_host(), conf::get_port()))?
+            .bind((Ipv4Addr::UNSPECIFIED, conf::get_port()))?
             .run()
             .await
         }
-        RunOpt::Worker => {
+        RunOpt::Worker{queues} => {
             worker.display_pretty().await;
-            worker.consume_from(&["test_queue"]).await.unwrap();
+            let queue_vec: Vec<&str> = queues.split(",").map(|x| x.trim()).collect();
+            worker.consume_from(&queue_vec).await.unwrap();
             worker.close().await.unwrap();
             Ok(())
         }

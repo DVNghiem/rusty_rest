@@ -6,10 +6,6 @@ pub mod conf {
         dotenv().ok();
     }
 
-    pub fn get_host() -> String {
-        env::var("HOST").unwrap_or("0.0.0.0".to_string())
-    }
-
     pub fn get_port() -> u16 {
         env::var("PORT")
             .unwrap_or("5005".to_string())
