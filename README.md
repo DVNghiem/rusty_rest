@@ -22,7 +22,7 @@ cargo install --locked
 ```
 3. Run the application:
 ```bash
-cargo watch -x "run web"
+cargo watch -x "run web -w 1"
 ```
 4. Run the worker:
 ```bash

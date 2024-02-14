@@ -31,19 +31,21 @@ use worker::create_worker;
 )]
 enum RunOpt {
     Worker,
-    Web,
+    Web {
+        #[structopt(short = "w", default_value="1")]
+        num_worker: usize
+    },
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     conf::init();
-
     let opt = RunOpt::from_args();
     let worker = create_worker().await;
 
     match opt {
-        RunOpt::Web => {
+        RunOpt::Web { num_worker } => {
             // worker.send_task(add_post::new()).await.unwrap();
             let redis_db = connect::connect_redis(&conf::get_redis_url())
                 .await
@@ -60,7 +62,7 @@ async fn main() -> std::io::Result<()> {
                     .wrap(actix_web::middleware::Compress::default())
                     .wrap(Logger::new("%a %r %s [%b bytes] %T seconds"))
             })
-            .workers(1)
+            .workers(num_worker)
             .bind((conf::get_host(), conf::get_port()))?
             .run()
             .await
