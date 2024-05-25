@@ -43,12 +43,11 @@ async fn main() -> std::io::Result<()> {
         RunOpt::Web { num_worker } => {
             worker.send_task(add_post::new()).await.unwrap();
             let redis_db = connect::connect_redis(&conf::get_redis_url())
-                .await
-                .unwrap();
-            let db = connect::get_database().await;
+                .await;
+            connect::connect_database().await;
             HttpServer::new(move || {
                 App::new()
-                    .app_data(web::Data::new(db.clone()))
+                    // .app_data(web::Data::new(db.clone()))
                     .app_data(web::Data::new(redis_db.clone()))
                     .app_data(web::Data::new(worker.clone()))
                     .configure(routing)
