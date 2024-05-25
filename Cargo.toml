@@ -16,7 +16,6 @@ opt-level = 3
 # name = "rust_lib"          # The name of the target.
 # path = "src/lib/mod.rs"    # The source file of the target.
 
-
 [dependencies]
 # internal dependencies
 entity = { path = "entity" }
@@ -38,4 +37,5 @@ celery = "0.5.5"
 tokio = "1.36.0"
 structopt = "0.3.26"
 utoipa = { version = "4.2.0", features = ["actix_extras"] }
-utoipa-swagger-ui = { version = "6.0.0", features = ["actix-web", "debug-embed"] }
+utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
+lazy_static = "1.4.0"

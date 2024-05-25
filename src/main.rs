@@ -1,27 +1,15 @@
 #![allow(dead_code)]
-// define module
-mod config;
-mod connect;
-mod controllers;
-mod errors;
-mod helpers;
-mod middlewares;
-mod routes;
-mod schema;
-mod tasks;
-mod worker;
 
-use std::net::Ipv4Addr;
-use crate::config::conf;
-use crate::routes::routing;
-use actix_web::{
-    middleware::Logger,
-    web, App, HttpServer,
-};
+use rusty_rest::middlewares;
+// use crate::config::conf;
+use rusty_rest::{connect, routes::routing};
+use rusty_rest::tasks::health_check::add_post;
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use env_logger::Env;
+use rusty_rest::config::conf;
+use std::net::Ipv4Addr;
 use structopt::StructOpt;
-use worker::create_worker;
-// use crate::tasks::health_check::add_post;
+use rusty_rest::worker::create_worker;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -31,12 +19,15 @@ use worker::create_worker;
 )]
 enum RunOpt {
     Worker {
-        #[structopt(short = "-q", default_value = "test_queue", about="Queue name to consume from split by comma. e.g: test_queue, test_queue2, test_queue3")]
+        #[structopt(
+            short = "-q",
+            default_value = "test_queue",
+            about = "Queue name to consume from split by comma. e.g: test_queue, test_queue2, test_queue3"
+        )]
         queues: String,
-    
     },
     Web {
-        #[structopt(short = "w", default_value = "1", about="Number of worker to run.")]
+        #[structopt(short = "w", default_value = "1", about = "Number of worker to run.")]
         num_worker: usize,
     },
 }
@@ -50,7 +41,7 @@ async fn main() -> std::io::Result<()> {
 
     match opt {
         RunOpt::Web { num_worker } => {
-            // worker.send_task(add_post::new()).await.unwrap();
+            worker.send_task(add_post::new()).await.unwrap();
             let redis_db = connect::connect_redis(&conf::get_redis_url())
                 .await
                 .unwrap();
@@ -71,7 +62,7 @@ async fn main() -> std::io::Result<()> {
             .run()
             .await
         }
-        RunOpt::Worker{queues} => {
+        RunOpt::Worker { queues } => {
             worker.display_pretty().await;
             let queue_vec: Vec<&str> = queues.split(",").map(|x| x.trim()).collect();
             worker.consume_from(&queue_vec).await.unwrap();
