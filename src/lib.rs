@@ -1,7 +1,7 @@
 // define module
 pub mod config;
 pub mod connect;
-pub mod controllers;
+pub mod apis;
 pub mod errors;
 pub mod factory;
 pub mod helpers;

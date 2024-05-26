@@ -1,4 +1,4 @@
-use crate::controllers::health_check;
+use crate::apis::health_check;
 use crate::schema::health_check::HealthCheckSchema;
 use actix_web::web;
 use utoipa::OpenApi;
