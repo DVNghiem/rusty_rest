@@ -6,7 +6,7 @@ use rusty_rest::{connect, routes::routing};
 use rusty_rest::tasks::health_check::add_post;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use env_logger::Env;
-use rusty_rest::config::conf;
+use rusty_rest::config::Config;
 use std::net::Ipv4Addr;
 use structopt::StructOpt;
 use rusty_rest::worker::create_worker;
@@ -35,19 +35,18 @@ enum RunOpt {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
-    conf::init();
+    let conf = Config::new();
     let opt = RunOpt::from_args();
     let worker = create_worker().await;
 
     match opt {
         RunOpt::Web { num_worker } => {
             worker.send_task(add_post::new()).await.unwrap();
-            let redis_db = connect::connect_redis(&conf::get_redis_url())
+            let redis_db = connect::connect_redis()
                 .await;
             connect::connect_database().await;
             HttpServer::new(move || {
                 App::new()
-                    // .app_data(web::Data::new(db.clone()))
                     .app_data(web::Data::new(redis_db.clone()))
                     .app_data(web::Data::new(worker.clone()))
                     .configure(routing)
@@ -57,7 +56,7 @@ async fn main() -> std::io::Result<()> {
                     .wrap(Logger::new("%a %r %s [%b bytes] %T seconds"))
             })
             .workers(num_worker)
-            .bind((Ipv4Addr::UNSPECIFIED, conf::get_port()))?
+            .bind((Ipv4Addr::UNSPECIFIED, conf.port))?
             .run()
             .await
         }

@@ -1,22 +1,22 @@
-pub mod conf {
-    use dotenv::dotenv;
-    use std::env;
+use dotenv::dotenv;
+use std::env;
 
-    pub fn init() {
+pub struct Config {
+    pub port: u16,
+    pub database_url: String,
+    pub redis_url: String,
+}
+
+impl Config {
+    pub fn new() -> Self {
         dotenv().ok();
-    }
-
-    pub fn get_port() -> u16 {
-        env::var("PORT")
-            .unwrap_or("5005".to_string())
-            .parse()
-            .unwrap()
-    }
-    pub fn get_database_url() -> String {
-        env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env")
-    }
-
-    pub fn get_redis_url() -> String {
-        env::var("REDIS_URL").expect("REDIS_URL must be set in .env")
+        Self {
+            port: env::var("PORT")
+                .unwrap_or("5005".to_string())
+                .parse()
+                .unwrap(),
+            database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env"),
+            redis_url: env::var("REDIS_URL").expect("REDIS_URL must be set in .env"),
+        }
     }
 }

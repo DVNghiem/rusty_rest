@@ -64,7 +64,7 @@ where
                                 if !self.role.contains(&payload.role) {
                                     let (request, _pl) = req.into_parts();
                                     let response = HttpResponse::Forbidden()
-                                        .json("PERMISION_DENY")
+                                        .json("PERMISSION_DENY")
                                         .map_into_left_body();
                                     return Box::pin(async {
                                         Ok(ServiceResponse::new(request, response))
