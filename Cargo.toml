@@ -39,3 +39,5 @@ structopt = "0.3.26"
 utoipa = { version = "4.2.0", features = ["actix_extras"] }
 utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
 lazy_static = "1.4.0"
+bcrypt = "0.15"
+jsonwebtoken = "9"

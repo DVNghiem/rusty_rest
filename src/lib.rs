@@ -11,3 +11,4 @@ pub mod routes;
 pub mod schema;
 pub mod tasks;
 pub mod worker;
+pub mod core;
