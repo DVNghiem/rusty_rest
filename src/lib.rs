@@ -8,7 +8,7 @@ pub mod helpers;
 pub mod middlewares;
 pub mod repositories;
 pub mod routes;
-pub mod schema;
+pub mod dtos;
 pub mod tasks;
 pub mod worker;
 pub mod core;

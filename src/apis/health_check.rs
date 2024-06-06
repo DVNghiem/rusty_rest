@@ -1,5 +1,5 @@
 use crate::helpers::health_check::HealthCheckHelper;
-use crate::schema::health_check::HealthCheckSchema;
+use crate::dtos::health_check::HealthCheckSchema;
 use crate::{errors::HttpError, factory::Factory};
 use actix_web::{web, HttpResponse};
 use lazy_static::lazy_static;

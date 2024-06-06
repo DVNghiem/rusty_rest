@@ -1,5 +1,5 @@
 use crate::apis::health_check;
-use crate::schema::health_check::HealthCheckSchema;
+use crate::dtos::health_check::HealthCheckSchema;
 use actix_web::web;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
