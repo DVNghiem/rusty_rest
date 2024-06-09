@@ -1,14 +1,5 @@
 // define module
 pub mod config;
-pub mod connect;
-pub mod apis;
-pub mod errors;
-pub mod factory;
-pub mod helpers;
-pub mod middlewares;
-pub mod repositories;
-pub mod routes;
-pub mod dtos;
-pub mod tasks;
-pub mod worker;
 pub mod core;
+pub mod router;
+pub mod apis;

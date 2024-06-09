@@ -46,8 +46,8 @@ impl error::ResponseError for HttpError {
         let data = json!(
             {
                 "data": "",
-                "error_code": error_code[0],
-                "error_msg": error_msg
+                "code": error_code[0],
+                "msg": error_msg
             }
         );
         HttpResponse::build(self.status_code()).json(data)

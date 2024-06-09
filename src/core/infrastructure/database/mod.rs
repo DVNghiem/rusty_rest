@@ -1,20 +1,11 @@
-use std::time::Duration;
+pub mod repositories;
 
+use std::time::Duration;
 use crate::config::Config;
-use redis::Client;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use tokio::sync::OnceCell;
 
 pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
-pub static REDIS: OnceCell<Client> = OnceCell::const_new();
-
-pub async fn connect_redis() -> Client {
-    let uri = Config::new().redis_url;
-    REDIS.get_or_init(|| Box::pin(async {
-        let client = Client::open(uri).unwrap();
-        client
-    })).await.clone()
-}
 
 pub async fn connect_database() -> &'static DatabaseConnection {
     let url = Config::new().database_url;

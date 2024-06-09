@@ -1,10 +1,9 @@
-use crate::apis::health_check;
-use crate::dtos::health_check::HealthCheckSchema;
 use actix_web::web;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
+use crate::core::application::controllers::health_check;
 
-pub fn routing(cfg: &mut web::ServiceConfig) {
+pub fn core_routing(cfg: &mut web::ServiceConfig, path: &str) {
     #[derive(OpenApi)]
     #[openapi(
         info(
@@ -16,7 +15,6 @@ pub fn routing(cfg: &mut web::ServiceConfig) {
         ),
         components(
             schemas(
-                HealthCheckSchema,
             )
         ),
         tags((name = "BasicAPI", description = "A very Basic API")),
@@ -24,7 +22,7 @@ pub fn routing(cfg: &mut web::ServiceConfig) {
     struct ApiDoc;
     let url = Url::with_primary("Rusty rest", "/api-docs/openapi.json", true);
     cfg.service(
-        web::scope("")
+        web::scope(path)
             .service(
                 SwaggerUi::new("/docs/{_:.*}").url(url, ApiDoc::openapi()),
             )
