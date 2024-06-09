@@ -1,3 +1,3 @@
 pub mod database;
-pub mod redis;
 pub mod jwt;
+pub mod redis;

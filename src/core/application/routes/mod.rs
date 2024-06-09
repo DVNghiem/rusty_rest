@@ -15,7 +15,6 @@ use utoipa::OpenApi;
 )]
 pub struct CoreApiDoc;
 
-
 pub fn core_routing(cfg: &mut web::ServiceConfig, path: &str) {
     cfg.service(web::scope(path).route("/health_check", web::get().to(health_check::health_check)));
 }

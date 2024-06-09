@@ -1,5 +1,5 @@
 use serde::{de::DeserializeOwned, Serialize};
-use validator::{ValidationErrors, Validate};
+use validator::{Validate, ValidationErrors};
 
 /// This Rust code defines a trait named `RequestHandler` with a generic type `T`. Within the trait
 /// definition:

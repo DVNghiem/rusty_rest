@@ -22,7 +22,6 @@ impl RequestHandler for GetPostHandler {
     }
 
     async fn handler(&self, request: Self::Input) -> Result<Self::Output, String> {
-        
         match self.validate(request.into_inner()) {
             Ok(_) => {
                 let repository = PostRepository::default();
