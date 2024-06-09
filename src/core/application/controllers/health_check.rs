@@ -3,7 +3,7 @@ use serde_json::json;
 
 #[utoipa::path(
     get,
-    path = "/health_check",
+    path = "/core/health_check",
     responses(
         (status = 200, description = "List current todo items")
     ),
