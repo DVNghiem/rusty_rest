@@ -1,9 +1,7 @@
+use super::super::handlers::post::GetPostHandler;
+use crate::domains::post::dtos::GetPostDto;
 use actix_web::web;
-
-use crate::{
-    apis::{dtos::post::GetPostDto, handlers::post::get_post::GetPostHandler},
-    core::application::handlers::RequestHandler,
-};
+use infrastructure::handler::RequestHandler;
 
 pub async fn get_post(request: web::Query<GetPostDto>) -> impl actix_web::Responder {
     let handler = GetPostHandler::default();

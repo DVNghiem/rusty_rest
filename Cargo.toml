@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "entity", "migration"]
+members = [".", "entity", "infrastructure", "migration"]
 
 [package]
 name = "rusty_rest"
@@ -20,6 +20,7 @@ opt-level = 3
 # internal dependencies
 entity = { path = "entity" }
 migration = { path = "migration" }
+infrastructure ={ path = "infrastructure" }
 
 # external dependencies
 actix-web = "4.5.1"

@@ -1,5 +1,6 @@
-use crate::core::infrastructure::database::repositories::{Repository, RepositoryTrait};
 use entity::{post::Model, prelude::Post};
+use infrastructure::database::connect::{connect_database, DatabaseType};
+use sea_orm::EntityTrait;
 
 pub trait PostRepositoryTrait {
     fn find_all(
@@ -8,21 +9,18 @@ pub trait PostRepositoryTrait {
 }
 
 #[derive(Clone)]
-pub struct PostRepository {
-    pub repository: Repository<Post>,
-}
+pub struct PostRepository;
 
 impl Default for PostRepository {
     fn default() -> Self {
-        Self {
-            repository: Repository::default(),
-        }
+        Self {}
     }
 }
 
 impl PostRepositoryTrait for PostRepository {
     async fn find_all(&self) -> Result<Vec<Model>, sea_orm::DbErr> {
-        let query = self.repository.find_all().await;
-        query
+        let conn = connect_database(DatabaseType::Reader).await;
+        let posts = Post::find().all(conn).await?;
+        Ok(posts)
     }
 }

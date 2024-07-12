@@ -1,12 +1,9 @@
-use crate::{
-    apis::{
-        dtos::post::GetPostDto,
-        repositories::post::{PostRepository, PostRepositoryTrait},
-    },
-    core::application::handlers::RequestHandler,
-};
+use crate::domains::post::dtos::GetPostDto;
+use crate::domains::post::repositories::post::PostRepository;
+use crate::domains::post::repositories::PostRepositoryTrait;
 use actix_web::web;
 use entity::post::Model;
+use infrastructure::handler::RequestHandler;
 use validator::{Validate, ValidationErrors};
 
 #[derive(Default)]
