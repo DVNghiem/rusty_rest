@@ -1,44 +1,46 @@
 [workspace]
-members = [".", "entity", "infrastructure", "migration"]
+members = [
+    "crates/shared",
+    "crates/domain", 
+    "crates/infrastructure",
+    "crates/core",
+    "crates/api",
+]
+resolver = "2"
 
-[package]
-name = "rusty_rest"
-version = "0.1.0"
-edition = "2021"
+[workspace.dependencies]
+# Web framework
+axum = "0.7"
+axum-extra = "0.9"
+tower = "0.4"
+tower-http = "0.5"
+hyper = "1.0"
 
-[profile.dev]
-opt-level = 0
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
 
-[profile.release]
-opt-level = 3
-
-# [lib]
-# name = "rust_lib"          # The name of the target.
-# path = "src/lib/mod.rs"    # The source file of the target.
-
-[dependencies]
-# internal dependencies
-entity = { path = "entity" }
-migration = { path = "migration" }
-infrastructure ={ path = "infrastructure" }
-
-# external dependencies
-actix-web = "4.5.1"
-serde = "1.0.196"
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-dotenv = "0.15.0"
-log = "0.4.20"
-env_logger = "0.11.1"
-futures-util = "0.3.30"
-redis = { version = "0.24.0", features = ["tokio-comp"] }
-thiserror = "1.0.56"
-sea-orm = { version = "^0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
-validator = { version = "0.16", features = ["derive"] }
-celery = "0.5.5"
-tokio = "1.36.0"
-structopt = "0.3.26"
-utoipa = { version = "4.2.0", features = ["actix_extras"] }
-utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
-lazy_static = "1.4.0"
-bcrypt = "0.15"
-jsonwebtoken = "9"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid"] }
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# HTTP client
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+
+# Testing
+mockall = "0.12"

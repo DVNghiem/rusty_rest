@@ -1,17 +1,52 @@
-FROM rustlang/rust:nightly as builder
+# Build stage
+FROM rust:1.75-slim-bullseye AS builder
 
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
 WORKDIR /app
 
-COPY . .
+# Copy Cargo files
+COPY Cargo.toml Cargo.lock ./
+COPY crates/ ./crates/
 
-RUN cargo build --release
+# Build dependencies (this is cached if Cargo files don't change)
+RUN cargo build --release --bin api
 
-FROM alpine:latest
+# Runtime stage
+FROM debian:bullseye-slim
 
-COPY --from=builder /app/target/release/rusty_rest /usr/local/bin/rusty_rest
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libpq5 \
+    libssl1.1 \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV RUST_LOG=info
+# Create app user
+RUN useradd -r -s /bin/false appuser
 
-EXPOSE 8080
+# Create app directory
+WORKDIR /app
 
-CMD ["rusty_rest"]
+# Copy the binary from builder stage
+COPY --from=builder /app/target/release/api /usr/local/bin/api
+
+# Change ownership to app user
+RUN chown -R appuser:appuser /app
+USER appuser
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Run the application
+CMD ["api"]
